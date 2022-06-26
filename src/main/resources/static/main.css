@@ -1,0 +1,76 @@
+body {
+    box-sizing: border-box;
+}
+
+table {
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+table border {
+    color: darkgray;
+}
+
+td {
+    margin: auto;
+    padding: 5px;
+    text-align: center;
+    border: 1px solid darkgray;
+    border-top: none;
+    border-bottom: none;
+}
+
+caption {
+    border: 1px solid darkgray;
+    border-bottom: none;
+    border-collapse: collapse;
+    font-weight: bold;
+    padding: 2px;
+}
+
+.row {
+    display: flex;
+}
+
+.column {
+    padding-right: 0,1px;
+}
+
+.subtitle {
+    font-size: 14px;
+}
+
+#league {
+    border-right: 0,1em;
+}
+
+tr.titles {
+    color: darkgray;
+    text-align: left;
+}
+
+#all {
+    float: left;
+}
+
+#next {
+    float: right;
+}
+
+#results td {
+    border: none;
+}
+
+#predictions {
+    padding: 20px;
+    padding-left: 30px;
+}
+
+#captions {
+    font-weight: bold;
+    border-bottom: 1px solid darkgray;
+}
+
+.name {
+    text-align: left;
+}
