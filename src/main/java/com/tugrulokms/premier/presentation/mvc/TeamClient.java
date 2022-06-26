@@ -7,8 +7,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
@@ -71,6 +69,18 @@ public class TeamClient {
         }
 
         model.addAttribute("suffix", suffix);
+
+        url = "http://localhost:8080/api/teams";
+
+        ResponseEntity<List<TeamDto>> response =
+                restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY,
+                        new ParameterizedTypeReference<List<TeamDto>>() {});
+
+        List<TeamDto> teams = response.getBody();
+
+        teams.sort((o1, o2) -> o2.getPoints() - o1.getPoints());
+
+        model.addAttribute("teams", teams);
 
         return "LeagueEditor";
     }

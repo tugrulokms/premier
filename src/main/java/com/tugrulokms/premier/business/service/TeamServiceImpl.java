@@ -1,7 +1,6 @@
 package com.tugrulokms.premier.business.service;
 
-import com.tugrulokms.premier.business.dto.LeagueDto;
-import com.tugrulokms.premier.business.dto.TeamDto;
+import com.tugrulokms.premier.business.dto.*;
 import com.tugrulokms.premier.data.entity.League;
 import com.tugrulokms.premier.data.entity.Team;
 import com.tugrulokms.premier.data.repository.LeagueRepository;
@@ -27,34 +26,29 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public int advanceWeek(int weekCount) {
+    public int advanceWeek(Fixture fixture, int weekCount) {
+
         Random random = new Random();
 
         List<TeamDto> teams = findAll();
 
-        while(teams.size() > 1) {
+        Map<TeamDto, Integer> game = new HashMap<>();
 
-            List<TeamDto> opposingTeams = new ArrayList<>();
+        for(int i = 0; i < 2; i++) {
 
-            for(int i = 0; i < 2; i++) {
-                int order = random.nextInt(teams.size()-1);
-                opposingTeams.add(teams.get(order));
-                System.out.println(teams.size() + ": " + teams.get(order).getTeamName());
-                teams.remove(order);
-            }
+            Match match = fixture.getWeeks().get(weekCount).getMatches().get(i);
 
-            Map<TeamDto, Integer> match = new HashMap<>();
-            TeamDto homeTeam = opposingTeams.get(0);
-            TeamDto awayTeam = opposingTeams.get(1);
+            TeamDto homeTeam = match.getHomeTeam();
+            TeamDto awayTeam = match.getAwayTeam();
 
-            match.put(homeTeam, random.nextInt(8));
-            match.put(awayTeam, random.nextInt(8));
+            game.put(homeTeam, random.nextInt(8));
+            game.put(awayTeam, random.nextInt(8));
 
-            int homeScore = match.get(homeTeam);
-            int awayScore = match.get(awayTeam);
+            int homeScore = game.get(homeTeam);
+            int awayScore = game.get(awayTeam);
 
-            for(TeamDto team: opposingTeams)
-                team.setPlayed(team.getPlayed() + 1);
+            homeTeam.setPlayed(homeTeam.getPlayed() + 1);
+            awayTeam.setPlayed(awayTeam.getPlayed() + 1);
 
             if(homeScore > awayScore) {
 
@@ -70,7 +64,8 @@ public class TeamServiceImpl implements TeamService {
 
                 homeTeam.setLosses(homeTeam.getLosses() + 1);
 
-            } else if(match.get(homeTeam) == match.get(awayTeam)) {
+            } else if(game.get(homeTeam).equals(game.get(awayTeam))) {
+
                 homeTeam.setDraws(homeTeam.getDraws() + 1);
                 awayTeam.setDraws(awayTeam.getDraws() + 1);
 
@@ -149,4 +144,71 @@ public class TeamServiceImpl implements TeamService {
         return teamDtos;
     }
 
+    public Fixture manageFixture(List<TeamDto> teams) {
+
+        Fixture fixture = new Fixture();
+        List<TeamDto> tempList = teams;
+
+        List<Week> matchesFirstHalf = arrangeMatches(tempList);
+        List<Week> matchesSecondHalf = matchesFirstHalf;
+
+        List<Week> allWeeks = new ArrayList<>();
+        allWeeks.addAll(matchesFirstHalf);
+        allWeeks.addAll(matchesSecondHalf);
+
+        fixture.setWeeks(allWeeks);
+
+        return fixture;
+    }
+
+    private List<Week> arrangeMatches(List<TeamDto> teams) {
+
+        Random random = new Random();
+
+        List<Week> weeks = new ArrayList<>();
+        List<Match> matches = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            Week week = new Week();
+            if(weeks.isEmpty()) {
+                while(teams.size() > 0) {
+                    Match match = new Match();
+                    int rand = random.nextInt(teams.size() - 1);
+
+                    TeamDto homeTeam = teams.get(rand);
+                    match.setHomeTeam(homeTeam);
+                    teams.remove(homeTeam);
+
+                    int rand2;
+
+                    if(teams.size() - 1 == 0)
+                        rand2 = 0;
+                    else
+                        rand2 = random.nextInt(teams.size() - 1);
+
+                    TeamDto awayTeam = teams.get(rand2);
+                    match.setAwayTeam(awayTeam);
+                    teams.remove(awayTeam);
+
+                    matches.add(match);
+                    System.out.println(match.getHomeTeam().getTeamName() + " vs " + match.getAwayTeam().getTeamName());
+                }
+
+            } else {
+                Match match = new Match();
+
+                TeamDto prevMatch1Team1 = matches.get(i-1).getHomeTeam();
+                TeamDto prevMatch2Team2 = matches.get(i).getAwayTeam();
+                match.setHomeTeam(prevMatch2Team2);
+                match.setAwayTeam(prevMatch1Team1);
+
+                matches.add(match);
+
+            }
+            week.setMatches(matches);
+            weeks.add(week);
+        }
+
+        return weeks;
+    }
 }

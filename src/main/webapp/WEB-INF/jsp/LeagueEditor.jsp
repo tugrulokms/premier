@@ -71,7 +71,7 @@
             <c:forEach var="team" items="${teams}">
                 <tr>
                     <td class="name">${team.teamName}</td>
-                    <td>%55</td>
+                    <td>%25</td>
                 </tr>
             </c:forEach>
         </table>
